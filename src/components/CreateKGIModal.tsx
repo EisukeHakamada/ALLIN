@@ -10,7 +10,7 @@ interface CreateKGIModalProps {
   scope: {
     type: ScopeType;
     id: string;
-  };
+  };z
   parentKgiId?: string;
 }
 
