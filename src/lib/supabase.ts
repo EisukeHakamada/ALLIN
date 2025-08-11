@@ -1,52 +1,34 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables')
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
-// タスクの型定義
-export interface Task {
-  id: string
-  title: string
-  description?: string
-  status: 'pending' | 'in_progress' | 'completed' | 'on_hold'
-  priority: 'low' | 'medium' | 'high'
-  due_date?: string
-  project_id?: string
-  business_unit?: string
-  created_at: string
-  updated_at: string
-  user_id: string
-}
+// Supabaseの型定義をエクスポート（TypeScript用）
+export type { Database } from './database.types';
 
-// プロジェクトの型定義
-export interface Project {
-  id: string
-  name: string
-  description?: string
-  status: 'planning' | 'active' | 'completed' | 'on_hold'
-  business_unit: string
-  goals?: string
-  created_at: string
-  updated_at: string
-  user_id: string
-}
+// 認証関連のヘルパー関数
+export const getCurrentUser = async () => {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+  return user;
+};
 
-// 連絡先の型定義
-export interface Contact {
-  id: string
-  name: string
-  company?: string
-  role?: string
-  email?: string
-  phone?: string
-  notes?: string
-  created_at: string
-  updated_at: string
-  user_id: string
-}
+export const getCurrentUserId = async (): Promise<string | null> => {
+  const user = await getCurrentUser();
+  return user?.id || null;
+};

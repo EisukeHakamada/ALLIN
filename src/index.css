@@ -1,13 +1,211 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Business Platform Dashboard</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+/* @importは必ず最初に配置 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* カスタムスクロールバー */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* アニメーション（重複を削除し統合） */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.wizard-step-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* グラデーションボタンのホバーエフェクト */
+.gradient-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  transition: left 0.3s ease;
+}
+
+.gradient-button:hover::before {
+  left: 0;
+}
+
+.gradient-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* プログレスバーのアニメーション */
+.progress-bar {
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* カードのホバーエフェクト */
+.project-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* KPI選択カードのアニメーション */
+.kpi-card {
+  transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-card.selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* テキストエリアのフォーカス状態 */
+.form-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ステップインジケーター */
+.step-indicator {
+  position: relative;
+}
+
+.step-indicator::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 40px;
+  height: 2px;
+  background-color: #e5e7eb;
+  transform: translateY(-50%);
+}
+
+.step-indicator.completed::after {
+  background-color: #3b82f6;
+}
+
+/* リーンキャンバスのグリッドレイアウト調整 */
+.lean-canvas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+  .mobile-hide {
+    display: none;
+  }
+  
+  .wizard-modal {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+  
+  .lean-canvas-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .wizard-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .wizard-buttons button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ダークモード対応（将来的な拡張用） */
+@media (prefers-color-scheme: dark) {
+  .wizard-modal {
+    background-color: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .wizard-modal .border-gray-200 {
+    border-color: #374151;
+  }
+  
+  .wizard-modal .bg-gray-50 {
+    background-color: #374151;
+  }
+  
+  .wizard-modal .text-gray-900 {
+    color: #f9fafb;
+  }
+  
+  .wizard-modal .text-gray-600 {
+    color: #d1d5db;
+  }
+}

@@ -1,258 +1,193 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { 
+  BarChart3, 
+  TrendingUp, 
+  Users, 
+  Calendar, 
   CheckCircle, 
-  Clock, 
-  AlertCircle, 
-  Plus, 
-  TrendingUp,
-  Calendar,
-  Users,
+  AlertTriangle,
   Target
 } from 'lucide-react';
-import { supabase, Task, Project } from '../lib/supabase';
 
-export function Dashboard() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+// ダッシュボードから新規事業立案フローを削除し、純粋なダッシュボード機能に集中
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      
-      // タスクとプロジェクトを並行して取得
-      const [tasksResponse, projectsResponse] = await Promise.all([
-        supabase
-          .from('tasks')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10),
-        supabase
-          .from('projects')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5)
-      ]);
-
-      if (tasksResponse.error) throw tasksResponse.error;
-      if (projectsResponse.error) throw projectsResponse.error;
-
-      setTasks(tasksResponse.data || []);
-      setProjects(projectsResponse.data || []);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
+export const Dashboard: React.FC = () => {
+  // モックデータ
+  const stats = {
+    revenue: 2500000,
+    revenueGrowth: 8.3,
+    conversionRate: 35,
+    conversionGrowth: 2.5,
+    customerSatisfaction: 4.2,
+    satisfactionChange: -0.3,
   };
 
-  const getTaskStats = () => {
-    const total = tasks.length;
-    const completed = tasks.filter(task => task.status === 'completed').length;
-    const inProgress = tasks.filter(task => task.status === 'in_progress').length;
-    const pending = tasks.filter(task => task.status === 'pending').length;
-    
-    return { total, completed, inProgress, pending };
-  };
+  const recentProjects = [
+    { id: 1, name: 'AIプラットフォーム開発', progress: 65 },
+    { id: 2, name: 'マーケットリサーチ', progress: 80 },
+    { id: 3, name: 'ユーザーインタビュー分析', progress: 45 },
+  ];
 
-  const getProjectStats = () => {
-    const total = projects.length;
-    const active = projects.filter(project => project.status === 'active').length;
-    const completed = projects.filter(project => project.status === 'completed').length;
-    
-    return { total, active, completed };
-  };
-
-  const taskStats = getTaskStats();
-  const projectStats = getProjectStats();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const todaysTasks = [
+    { id: 1, title: '競合分析レポート作成', priority: 'high', completed: false },
+    { id: 2, title: 'ユーザーインタビュー実施', priority: 'medium', completed: true },
+    { id: 3, title: 'プロトタイプ要件定義', priority: 'high', completed: false },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* ヘッダー */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            今日のタスクとプロジェクトの概要
-          </p>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
+        <p className="text-gray-600">今日のフォーカスと全体の進捗を確認できます</p>
+      </div>
+
+      {/* 主要KPI */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">平均取引額</p>
+              <p className="text-2xl font-bold text-gray-900">¥{stats.revenue.toLocaleString()}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+            <span className="text-sm text-green-600 font-medium">+{stats.revenueGrowth}%</span>
+            <span className="text-sm text-gray-500 ml-2">先月比</span>
+          </div>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <button className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <Plus className="h-4 w-4 mr-2" />
-            新規タスク
+
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">商談成約率</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.conversionRate}%</p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <Target className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+            <span className="text-sm text-green-600 font-medium">+{stats.conversionGrowth}%</span>
+            <span className="text-sm text-gray-500 ml-2">先月比</span>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">顧客満足度</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.customerSatisfaction}</p>
+            </div>
+            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <Users className="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center">
+            <AlertTriangle className="w-4 h-4 text-red-500 mr-1" />
+            <span className="text-sm text-red-600 font-medium">{stats.satisfactionChange}</span>
+            <span className="text-sm text-gray-500 ml-2">先月比</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 今日のタスク */}
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">今日のフォーカス</h3>
+            <Calendar className="w-5 h-5 text-gray-500" />
+          </div>
+          
+          <div className="space-y-3">
+            {todaysTasks.map((task) => (
+              <div key={task.id} className="flex items-center space-x-3">
+                <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                  task.completed ? 'bg-green-500 border-green-500' : 'border-gray-300'
+                }`}>
+                  {task.completed && <CheckCircle className="w-3 h-3 text-white" />}
+                </div>
+                <div className="flex-1">
+                  <p className={`text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-900'}`}>
+                    {task.title}
+                  </p>
+                  <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                    task.priority === 'high' 
+                      ? 'bg-red-100 text-red-700' 
+                      : 'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {task.priority === 'high' ? '高' : '中'}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            すべてのタスクを表示 →
+          </button>
+        </div>
+
+        {/* プロジェクト進捗 */}
+        <div className="bg-white p-6 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">プロジェクト進捗</h3>
+            <BarChart3 className="w-5 h-5 text-gray-500" />
+          </div>
+          
+          <div className="space-y-4">
+            {recentProjects.map((project) => (
+              <div key={project.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-900">{project.name}</span>
+                  <span className="text-sm text-gray-500">{project.progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all"
+                    style={{ width: `${project.progress}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button className="w-full mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            すべてのプロジェクトを表示 →
           </button>
         </div>
       </div>
 
-      {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-6 w-6 text-green-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    完了タスク
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {taskStats.completed}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
+      {/* KPI サマリー */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">今週のKPI進捗</h3>
+          <Target className="w-5 h-5 text-gray-500" />
         </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Clock className="h-6 w-6 text-yellow-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    進行中タスク
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {taskStats.inProgress}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <p className="text-2xl font-bold text-blue-600">8</p>
+            <p className="text-sm text-gray-600">ユーザーインタビュー</p>
+            <p className="text-xs text-gray-500">目標: 10件</p>
           </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <AlertCircle className="h-6 w-6 text-red-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    未着手タスク
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {taskStats.pending}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <p className="text-2xl font-bold text-green-600">2</p>
+            <p className="text-sm text-gray-600">プロトタイプ作成</p>
+            <p className="text-xs text-gray-500">目標: 3個</p>
           </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Target className="h-6 w-6 text-blue-400" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    アクティブプロジェクト
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {projectStats.active}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* メインコンテンツ */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 最近のタスク */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              最近のタスク
-            </h3>
-            {tasks.length > 0 ? (
-              <div className="space-y-3">
-                {tasks.slice(0, 5).map((task) => (
-                  <div key={task.id} className="flex items-center space-x-3">
-                    <div className={`flex-shrink-0 w-3 h-3 rounded-full ${
-                      task.status === 'completed' ? 'bg-green-400' :
-                      task.status === 'in_progress' ? 'bg-yellow-400' :
-                      'bg-gray-300'
-                    }`}></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {task.title}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {task.business_unit || '未分類'}
-                      </p>
-                    </div>
-                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                      task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                      {task.priority === 'high' ? '高' :
-                       task.priority === 'medium' ? '中' : '低'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">
-                まだタスクがありません
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* アクティブプロジェクト */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              アクティブプロジェクト
-            </h3>
-            {projects.length > 0 ? (
-              <div className="space-y-4">
-                {projects.filter(p => p.status === 'active').slice(0, 3).map((project) => (
-                  <div key={project.id} className="border-l-4 border-blue-400 pl-4">
-                    <h4 className="text-sm font-medium text-gray-900">
-                      {project.name}
-                    </h4>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {project.business_unit}
-                    </p>
-                    <p className="text-sm text-gray-600 mt-2">
-                      {project.description || 'プロジェクト詳細なし'}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">
-                アクティブなプロジェクトがありません
-              </p>
-            )}
+          <div className="text-center p-4 bg-gray-50 rounded-lg">
+            <p className="text-2xl font-bold text-purple-600">45</p>
+            <p className="text-sm text-gray-600">テストユーザー数</p>
+            <p className="text-xs text-gray-500">目標: 50人</p>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
